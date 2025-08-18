@@ -1,0 +1,32 @@
+.appContainer {
+    display: grid;
+    grid-template-areas:
+    "header header"
+    "sidebar main"
+    "footer footer";
+    grid-template-rows: 5% 90% 5%;
+    grid-template-columns: 5% 95%;
+    height: 100vh;
+}
+
+.navbarArea {
+    grid-area: header;
+}
+
+.mainArea {
+    grid-area: main;
+}
+
+.footerArea {
+    grid-area: footer;
+}
+
+.sidebarArea {
+    grid-area: sidebar;
+}
+
+.fullMainArea {
+    grid-area: main;
+    grid-column: 1 / 2;
+    grid-row: 1 / 3;
+}
