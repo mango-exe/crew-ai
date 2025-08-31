@@ -126,3 +126,7 @@
     @apply bg-gray-500/20 border border-gray-300;
   }
 }
+
+.bg-sidebar {
+  background-color: unset !important;
+}

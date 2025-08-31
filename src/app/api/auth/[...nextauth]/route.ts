@@ -24,23 +24,28 @@ export const authOptions: AuthOptions = {
         password: { label: 'Password', type: 'password ' }
       },
       async authorize (credentials) {
-        const email = credentials?.email as string
-        const password = credentials?.password as string
+        try {
+          const email = credentials?.email as string
+          const password = credentials?.password as string
 
-        if (!email || !password) return null
+          if (!email || !password) return null
 
-        const user = await userRepository.getUserByEmail(email)
+          const user = await userRepository.getUserByEmail(email)
 
-        if (user == null) return null
+          if (user == null) return null
 
-        const isPasswordValid = await bcrypt.compare(password, user.hashedPassword)
+          const isPasswordValid = await bcrypt.compare(password, user.hashedPassword)
 
-        if (!isPasswordValid) return null
+          if (!isPasswordValid) return null
 
-        return {
-          id: user.id.toString(),
-          email: user.email
-        } as User
+          return {
+            id: user.id.toString(),
+            email: user.email
+          } as User
+        } catch(e) {
+          console.warn(e)
+          return null
+        }
       }
     }),
     GoogleProvider({
@@ -53,16 +58,21 @@ export const authOptions: AuthOptions = {
   },
   callbacks: {
     async signIn ({ user, account }) {
-      const existingUser = await userRepository.getUserByEmail(user.email)
+      try {
+        const existingUser = await userRepository.getUserByEmail(user.email)
 
-      if (existingUser == null) {
-        await userRepository.createUser({
-          email: user.email,
-          provider: account?.provider as UserProvider
-        })
+        if (existingUser == null) {
+          await userRepository.createUser({
+            email: user.email,
+            provider: account?.provider as UserProvider
+          })
+        }
+
+        return true
+      } catch(e) {
+        console.warn(e)
+        return false
       }
-
-      return true
     },
     async jwt ({ token, user }) {
       if (user) {
