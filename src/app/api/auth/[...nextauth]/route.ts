@@ -13,6 +13,8 @@ import bcrypt from 'bcrypt'
 
 import { UserRepository } from '@/lib/db/repositories/user-repository'
 
+import { seedLLMModels } from '@/lib/db/seed/llm-models-seed'
+
 const userRepository = Container.get(UserRepository)
 
 export const authOptions: AuthOptions = {
@@ -42,7 +44,7 @@ export const authOptions: AuthOptions = {
             id: user.id.toString(),
             email: user.email
           } as User
-        } catch(e) {
+        } catch (e) {
           console.warn(e)
           return null
         }
@@ -59,6 +61,7 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async signIn ({ user, account }) {
       try {
+        await seedLLMModels()
         const existingUser = await userRepository.getUserByEmail(user.email)
 
         if (existingUser == null) {
@@ -69,7 +72,7 @@ export const authOptions: AuthOptions = {
         }
 
         return true
-      } catch(e) {
+      } catch (e) {
         console.warn(e)
         return false
       }

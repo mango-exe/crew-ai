@@ -4,8 +4,8 @@ import { useRouter } from 'next/navigation'
 import { ComponentType, JSX } from 'react'
 import { Spinner } from '@/app/components/ui/shadcn-io/spinner'
 
-export function withAuth<T extends JSX.IntrinsicAttributes>(Component: ComponentType<T>) {
-  return function AuthenticatedComponent(props: T) {
+export function withAuth<T extends JSX.IntrinsicAttributes> (Component: ComponentType<T>) {
+  return function AuthenticatedComponent (props: T) {
     const router = useRouter()
     const { data: session, status } = useSession()
 
@@ -16,9 +16,9 @@ export function withAuth<T extends JSX.IntrinsicAttributes>(Component: Component
         </div>
       )
     }
-    if (!session) router.push('/')
+    if (session == null) router.push('/')
+    console.warn(session)
 
-
-    return session ? <Component {...props} /> : null
+    return (session != null) ? <Component {...props} /> : null
   }
 }

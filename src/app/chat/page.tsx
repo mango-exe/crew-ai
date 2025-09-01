@@ -6,16 +6,16 @@ import ChatInput from '@/app/components/chat-input'
 import ChatMessages from '@/app/components/chat-messages'
 import ChatSidebar from '../components/chat-sidebar'
 
-function ChatPage() {
+function ChatPage () {
   return (
     <div>
       <SidebarProvider>
         <ChatSidebar />
-        <main className="flex-1 flex flex-col">
+        <main className='flex-1 flex flex-col'>
           <div className='absolute top-4 left-4'>
-            <SidebarTrigger />
+            <SidebarTrigger className='rounded-3xl' />
           </div>
-          <div className="flex flex-col items-center">
+          <div className='flex flex-col items-center'>
             <ChatMessages />
             <ChatInput />
           </div>

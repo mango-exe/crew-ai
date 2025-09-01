@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { v4 as uuidv4 } from 'uuid'
 import {
   AIMessage,
   BaseMessage,
@@ -12,7 +11,6 @@ import {
   END,
   MemorySaver
 } from '@langchain/langgraph'
-import { ChatOpenAI } from '@langchain/openai'
 import { RunnableSequence, Runnable } from '@langchain/core/runnables'
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
 import { z } from 'zod'
@@ -29,18 +27,6 @@ export const stateSchema = z.object({
 })
 
 export type ChatStateType = z.infer<typeof stateSchema>
-
-interface SummarizeResult {
-  summary?: string
-  chat_history?: RemoveMessage[]
-}
-
-interface CallModelResult {
-  chat_history: BaseMessage[]
-  context?: any
-  llm?: string
-  answer: string
-}
 
 export class LLMGraph {
   workflow!: StateGraph<typeof stateSchema>

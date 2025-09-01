@@ -1,7 +1,10 @@
+import 'reflect-metadata'
+import { Service } from 'typedi'
 import { Runnable } from '@langchain/core/runnables'
 import { ChatMistralAI } from '@langchain/mistralai'
-import { BaseMessage, AIMessageChunk } from '@langchain/core/messages'
+import { BaseMessage, AIMessage } from '@langchain/core/messages'
 
+@Service()
 export class MistralModel extends Runnable {
   model: ChatMistralAI
   constructor () {
@@ -15,7 +18,7 @@ export class MistralModel extends Runnable {
   lc_namespace = ['Mistral']
   name = 'Mistral'
 
-  async invoke (input: any): Promise<AIMessageChunk> {
+  async invoke (input: any): Promise<AIMessage> {
     const messages: BaseMessage[] =
       input.messages ?? input.chat_history ?? []
     return await this.model.invoke(messages)
