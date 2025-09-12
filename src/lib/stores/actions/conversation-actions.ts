@@ -1,6 +1,8 @@
 import { StateCreator } from 'zustand'
 import { ConversationStore } from '@/lib/types/stores/conversation.types'
-import { NewChat } from '@/lib/types/schema/chat.types'
+import { NewChat, NewConversationChat } from '@/lib/types/schema/chat.types'
+import { SERVER } from '@/lib/global/config'
+import axios from 'axios'
 
 export const getConversations: StateCreator<ConversationStore, [], [], { getConversations: () => Promise<void> }> = (set, get) => ({
   getConversations: async () => {
@@ -38,12 +40,12 @@ export const getConversation: StateCreator<ConversationStore, [], [], { getConve
   }
 })
 
-export const createConversation: StateCreator<ConversationStore, [], [], { createConversation: (chat: NewChat) => Promise<void> }> = (set, get) => ({
-  createConversation: async (chat: NewChat) => {
+export const createConversation: StateCreator<ConversationStore, [], [], { createConversation: (chat: NewConversationChat) => Promise<void> }> = (set, get) => ({
+  createConversation: async (chat: NewConversationChat) => {
     set({ fetching: true })
     try {
-      // TODO: Implment api call
-
+      const response = await axios.post(`${SERVER}/api/conversations`, { chat })
+      set({ conversationId: response.data.conversationId })
     } catch (err: unknown) {
       if (err instanceof Error) {
         set({ error: err.message, fetching: false })

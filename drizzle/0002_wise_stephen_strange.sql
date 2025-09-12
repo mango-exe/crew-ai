@@ -1,0 +1,1 @@
+ALTER TABLE `llms` MODIFY COLUMN `name` enum('openai','gemini','mistral') NOT NULL;

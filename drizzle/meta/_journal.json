@@ -15,6 +15,13 @@
       "when": 1756754338150,
       "tag": "0001_daffy_havok",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1756801757307,
+      "tag": "0002_wise_stephen_strange",
+      "breakpoints": true
     }
   ]
 }

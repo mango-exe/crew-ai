@@ -1,19 +1,16 @@
-import 'reflect-metadata'
-import { Service } from 'typedi'
 import { Runnable } from '@langchain/core/runnables'
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai'
 import { BaseMessage, AIMessage } from '@langchain/core/messages'
 
-@Service()
 export class GeminiModel extends Runnable {
-  model: ChatGoogleGenerativeAI
+  public model: ChatGoogleGenerativeAI
+
   constructor () {
     super()
-    this.model =
-      new ChatGoogleGenerativeAI({
-        model: 'gemini-2.0-flash',
-        temperature: 0
-      })
+    this.model = new ChatGoogleGenerativeAI({
+      model: 'gemini-2.0-flash',
+      temperature: 0
+    })
   }
 
   lc_namespace = ['GeminiModel']
@@ -21,8 +18,7 @@ export class GeminiModel extends Runnable {
 
   async invoke (input: any): Promise<AIMessage> {
     console.warn({ input })
-    const messages: BaseMessage[] =
-      input.messages ?? input.chat_history ?? []
+    const messages: BaseMessage[] = input.messages ?? input.chat_history ?? []
     return await this.model.invoke(messages)
   }
 }

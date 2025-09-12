@@ -79,7 +79,7 @@ export async function seedLLMModels () {
       })),
       ...gemini.map((m) => ({
         llmId: providerMap.gemini,
-        modelName: m,
+        modelName: m.replace('models/', ''),
         isMultiModal: /vision|flash-lite/.test(m)
       }))
     ]

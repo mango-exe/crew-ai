@@ -1,5 +1,3 @@
-import 'reflect-metadata'
-
 import NextAuth from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import GoogleProvider from 'next-auth/providers/google'
@@ -8,14 +6,14 @@ import GithubProvider from 'next-auth/providers/github'
 import type { AuthOptions, User } from 'next-auth'
 import { UserProvider } from '@/lib/types/schema/user.types'
 
-import { Container } from 'typedi'
 import bcrypt from 'bcrypt'
 
 import { UserRepository } from '@/lib/db/repositories/user-repository'
+import { dbConnection } from '@/lib/db'
 
 import { seedLLMModels } from '@/lib/db/seed/llm-models-seed'
 
-const userRepository = Container.get(UserRepository)
+const userRepository = new UserRepository(dbConnection)
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -23,7 +21,7 @@ export const authOptions: AuthOptions = {
       name: 'Credentials',
       credentials: {
         email: { label: 'Email', type: 'text' },
-        password: { label: 'Password', type: 'password ' }
+        password: { label: 'Password', type: 'password' }
       },
       async authorize (credentials) {
         try {
@@ -61,7 +59,7 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async signIn ({ user, account }) {
       try {
-        await seedLLMModels()
+        // await seedLLMModels()
         const existingUser = await userRepository.getUserByEmail(user.email)
 
         if (existingUser == null) {

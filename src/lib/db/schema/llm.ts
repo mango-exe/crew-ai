@@ -1,7 +1,10 @@
-import { mysqlTable, int, varchar, boolean } from 'drizzle-orm/mysql-core'
+import { mysqlTable, int, mysqlEnum, boolean } from 'drizzle-orm/mysql-core'
+import { AvailableLLMS } from '@/lib/types/schema/llm.types'
+
+const llmEnumValues = Object.values(AvailableLLMS) as [string, ...string[]]
 
 export const llms = mysqlTable('llms', {
   id: int().primaryKey().autoincrement(),
-  name: varchar({ length: 255 }).notNull(),
+  name: mysqlEnum('name', llmEnumValues).notNull(),
   isDefault: boolean().notNull().default(false)
 })

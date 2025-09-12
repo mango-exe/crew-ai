@@ -1,14 +1,13 @@
 import 'reflect-metadata'
 
 import { NextResponse } from 'next/server'
-
-import { Container } from 'typedi'
 import bcrypt from 'bcrypt'
 
 import { UserRepository } from '@/lib/db/repositories/user-repository'
+import { dbConnection } from '@/lib/db'
 import { CreateUser, NewUser } from '@/lib/types/schema/user.types'
 
-const userRespository = Container.get(UserRepository)
+const userRepository = new UserRepository(dbConnection)
 
 export async function POST (request: Request) {
   try {
@@ -33,7 +32,7 @@ export async function POST (request: Request) {
       provider: 'credentials'
     }
 
-    await userRespository.createUser(user)
+    await userRepository.createUser(user)
 
     return NextResponse.json({ message: 'Created' }, { status: 201 })
   } catch (e) {
