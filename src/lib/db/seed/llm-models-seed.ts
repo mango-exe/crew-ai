@@ -64,7 +64,6 @@ export async function seedLLMModels () {
     }
 
     const { openai, mistral, gemini } = await listAllModels()
-    console.warn('Fetched models:', { openai, mistral, gemini })
 
     const rows = [
       ...openai.map((m) => ({

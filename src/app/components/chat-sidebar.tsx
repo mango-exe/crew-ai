@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+'use client'
+import React, { useState, useEffect } from 'react'
 import { Plus, Brain, LogOut } from 'lucide-react'
 import {
   SidebarFooter, useSidebar,
@@ -12,41 +13,37 @@ import {
   SidebarMenuItem,
   SidebarSeparator
 } from '@/app/components/ui/sidebar'
+
 import { signOut } from 'next-auth/react'
-
-const items = [
-  {
-    title: 'New Conversation',
-    icon: Plus
-  },
-  {
-    title: 'Models',
-    icon: Brain
-  }
-]
-
-const chats = [
-  {
-    description: 'chat 1',
-    id: '1'
-  },
-  {
-    description: 'chat 2',
-    id: '2'
-  },
-  {
-    description: 'chat 3',
-    id: '3'
-  },
-  {
-    description: 'chat 4',
-    id: '4'
-  }
-]
+import { useConversationStore } from '@/lib/stores/conversation-store'
+import { useRouter } from 'next/navigation'
 
 export default function ChatSidebar () {
   const { open } = useSidebar()
-  const [selectedChatId, setSelectedChatId] = useState()
+  const router = useRouter()
+
+  const { conversationAlias, conversations, count, getConversations, selectConversation } = useConversationStore(state => state)
+
+  const sidebarActionsModel = [
+    {
+      title: 'New Conversation',
+      icon: Plus
+    },
+    {
+      title: 'Models',
+      icon: Brain
+    }
+  ]
+
+  const handleSelectChat = (conversationAlias: string) => {
+    selectConversation(conversationAlias)
+    router.push(`/chat/${conversationAlias}`)
+  }
+
+  useEffect(() => {
+    getConversations()
+  }, [])
+
   return (
     <Sidebar
       collapsible='icon'
@@ -57,7 +54,7 @@ export default function ChatSidebar () {
           <SidebarGroupLabel className='text-white/80 text-xl'>CrewAI</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {sidebarActionsModel.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     className={`
@@ -76,8 +73,8 @@ export default function ChatSidebar () {
                 <div className='m-2'>
                   <div className='mb-2 text-xl'>Conversations</div>
                   <div className='flex flex-col gap-y-1'>
-                    {chats.map((chat) => {
-                      const isSelected = selectedChatId === chat.id // track selected chat
+                    {conversations?.length > 0 && conversations.map((chat) => {
+                      const isSelected = conversationAlias === chat.alias
 
                       return (
                         <div key={chat.id}>
@@ -87,7 +84,7 @@ export default function ChatSidebar () {
                             transition-colors duration-200
                             ${isSelected ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10 hover:text-white'}
                           `}
-                            onClick={() => setSelectedChatId(chat.id)}
+                            onClick={() => handleSelectChat(chat.alias) }
                           >
                             <div className='w-full truncate'>{chat.description}</div>
                           </div>

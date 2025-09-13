@@ -6,7 +6,7 @@ type WSMessage =
 
 type Listener = (msg: WSMessage) => void
 
-type MessageType = 'NEW_CONVERSATION' | 'NEW_CHAT' | 'ERROR'
+type MessageType = 'NEW_CONVERSATION' | 'NEW_CHAT_IN_CONVERSATION' | 'ERROR'
 
 class WebSocketClient {
   private static instance: WebSocketClient
@@ -33,7 +33,6 @@ class WebSocketClient {
     this.ws.onmessage = (event) => {
       try {
         const data: WSMessage = JSON.parse(event.data)
-        console.warn(data)
         this.listeners.forEach((l) => l(data))
       } catch (err) {
         console.error('❌ Invalid WS message', err)

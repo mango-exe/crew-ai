@@ -8,8 +8,10 @@ export const getConversations: StateCreator<ConversationStore, [], [], { getConv
   getConversations: async () => {
     set({ fetching: true })
     try {
-      // TODO: Implment api call
+      const response = await axios.get(`${SERVER}/api/conversations`)
+      const { conversations, count } = response.data
 
+      set({ conversations, count, fetched: true })
     } catch (err: unknown) {
       if (err instanceof Error) {
         set({ error: err.message, fetching: false })
@@ -20,16 +22,14 @@ export const getConversations: StateCreator<ConversationStore, [], [], { getConv
   }
 })
 
-// getConversation: () => void,
-// createConversation: () => void,
-// deleteConversation: () => void
-
-export const getConversation: StateCreator<ConversationStore, [], [], { getConversation: (conversationId: string) => Promise<void> }> = (set, get) => ({
-  getConversation: async (conversationId: string) => {
+export const getConversation: StateCreator<ConversationStore, [], [], { getConversation: (conversationAlias: string) => Promise<void> }> = (set, get) => ({
+  getConversation: async (conversationAlias: string) => {
     set({ fetching: true })
     try {
-      // TODO: Implment api call
+      const response = await axios.get(`${SERVER}/api/conversations/${conversationAlias}`)
+      const { conversation } = response.data
 
+      set({ chats: conversation.chats })
     } catch (err: unknown) {
       if (err instanceof Error) {
         set({ error: err.message, fetching: false })
@@ -40,35 +40,9 @@ export const getConversation: StateCreator<ConversationStore, [], [], { getConve
   }
 })
 
-export const createConversation: StateCreator<ConversationStore, [], [], { createConversation: (chat: NewConversationChat) => Promise<void> }> = (set, get) => ({
-  createConversation: async (chat: NewConversationChat) => {
-    set({ fetching: true })
-    try {
-      const response = await axios.post(`${SERVER}/api/conversations`, { chat })
-      set({ conversationId: response.data.conversationId })
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        set({ error: err.message, fetching: false })
-      } else {
-        set({ error: 'An unknown error occurred', fetching: false })
-      }
-    }
-  }
-})
-
-export const chat: StateCreator<ConversationStore, [], [], { chat: (conversationId: string, chat: NewChat) => Promise<void> }> = (set, get) => ({
-  chat: async (conversationId: string, chat: NewChat) => {
-    set({ fetching: true })
-    try {
-      // TODO: Implment api call
-
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        set({ error: err.message, fetching: false })
-      } else {
-        set({ error: 'An unknown error occurred', fetching: false })
-      }
-    }
+export const selectConversation: StateCreator<ConversationStore, [], [], { selectConversation: (conversationAlias: string) => void }> = (set, get) => ({
+  selectConversation: async (conversationAlias: string) => {
+    set({ conversationAlias })
   }
 })
 
@@ -87,3 +61,36 @@ export const deleteConversation: StateCreator<ConversationStore, [], [], { delet
     }
   }
 })
+
+
+// export const createConversation: StateCreator<ConversationStore, [], [], { createConversation: (chat: NewConversationChat) => Promise<void> }> = (set, get) => ({
+//   createConversation: async (chat: NewConversationChat) => {
+//     set({ fetching: true })
+//     try {
+//       const response = await axios.post(`${SERVER}/api/conversations`, { chat })
+//       set({ conversationId: response.data.conversationId })
+//     } catch (err: unknown) {
+//       if (err instanceof Error) {
+//         set({ error: err.message, fetching: false })
+//       } else {
+//         set({ error: 'An unknown error occurred', fetching: false })
+//       }
+//     }
+//   }
+// })
+
+// export const chat: StateCreator<ConversationStore, [], [], { chat: (conversationId: string, chat: NewChat) => Promise<void> }> = (set, get) => ({
+//   chat: async (conversationId: string, chat: NewChat) => {
+//     set({ fetching: true })
+//     try {
+//       // TODO: Implment api call
+
+//     } catch (err: unknown) {
+//       if (err instanceof Error) {
+//         set({ error: err.message, fetching: false })
+//       } else {
+//         set({ error: 'An unknown error occurred', fetching: false })
+//       }
+//     }
+//   }
+// })

@@ -1,4 +1,3 @@
-// src/server/handlers/conversationHandler.ts
 import { ConversationRepository } from '../../lib/db/repositories/conversation-repository'
 import { ChatRepository } from '../../lib/db/repositories/chat-repository'
 import { LLMRepository } from '../../lib/db/repositories/llm-repository'
@@ -8,19 +7,18 @@ import { LLMChatCompletion } from '../../lib/llm/llm-chat-completion'
 
 import { dbConnection } from '../../lib/db'
 import { NewConversation } from '../../lib/types/schema/conversation.types'
-import { NewChat, Chat } from '../../lib/types/schema/chat.types'
+import { NewChat, Chat, PopulatedChat } from '../../lib/types/schema/chat.types'
 import { v4 as uuidv4 } from 'uuid'
 import { AvailableLLMS } from '../../lib/types/schema/llm.types'
 
-// Instantiate repositories using the singleton DB connection
 const conversationRepository = new ConversationRepository(dbConnection)
 const chatRepository = new ChatRepository(dbConnection)
 const llmRepository = new LLMRepository(dbConnection)
 const llmModelRepository = new LLMModelRepository(dbConnection)
 const userRepository = new UserRepository(dbConnection)
-const llmChatCompletion = new LLMChatCompletion() // assuming this class doesn't require DI
+const llmChatCompletion = new LLMChatCompletion()
 
-export async function handleNewConversation (userEmail: string, chat: NewChat): Promise<{ chat: Chat, conversationAlias: string }> {
+export async function handleNewConversation (userEmail: string, chat: NewChat): Promise<{ chat: PopulatedChat, conversationAlias: string }> {
   if (!chat) {
     throw new Error('Bad request: chat is missing')
   }
@@ -51,7 +49,12 @@ export async function handleNewConversation (userEmail: string, chat: NewChat): 
 
   const newUserChat = await chatRepository.createChat(newUserChatDetails)
 
-  const llmModel = await llmModelRepository.getModelById(newUserChat.toModel!)
+  if (!newUserChat.toModel) {
+    throw new Error('LLM model not found')
+  }
+
+  const llmModel = await llmModelRepository.getModelById(newUserChat.toModel.id!)
+
   if (llmModel == null) {
     throw new Error('LLM model not found')
   }
@@ -85,11 +88,11 @@ export async function handleNewConversation (userEmail: string, chat: NewChat): 
   }
 }
 
-export async function handleNewChatMessage (
+export async function handleNewChatMessage(
   userEmail: string,
   conversationAlias: string,
   chat: NewChat
-): Promise<Chat> {
+): Promise<{ chat: PopulatedChat }> {
   if (!chat) {
     throw new Error('Bad request: chat is missing')
   }
@@ -119,7 +122,12 @@ export async function handleNewChatMessage (
 
   const newUserChat = await chatRepository.createChat(newUserChatDetails)
 
-  const llmModel = await llmModelRepository.getModelById(newUserChat.toModel!)
+  if (newUserChat.toModel == null) {
+    throw new Error('Bad request: Missing model')
+  }
+
+  const llmModel = await llmModelRepository.getModelById(newUserChat.toModel.id!)
+
   if (llmModel == null) {
     throw new Error('LLM model not found')
   }

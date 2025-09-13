@@ -80,6 +80,7 @@ export class ConversationRepository {
       chats: rows.map(r => ({
         id: r.chatId,
         textContent: r.textContent,
+        conversationId: r.conversationId,
         timestamp: r.timestamp,
         fromUser: r.fromUserId
           ? { id: r.fromUserId, email: r.fromUserEmail }
@@ -87,7 +88,7 @@ export class ConversationRepository {
         fromModel: r.fromModelId
           ? {
               id: r.fromModelId,
-              name: r.fromModelName,
+              modelName: r.fromModelName,
               isMultiModal: r.fromModelIsMultiModal,
               llm: { id: r.fromModelLLMId, name: r.fromModelLLMName }
             }
@@ -98,7 +99,7 @@ export class ConversationRepository {
         toModel: r.toModelId
           ? {
               id: r.toModelId,
-              name: r.toModelName,
+              modelName: r.toModelName,
               isMultiModal: r.toModelIsMultiModal,
               llm: { id: r.toModelLLMId, name: r.toModelLLMName }
             }

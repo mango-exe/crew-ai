@@ -15,13 +15,10 @@ export default function ChatInput () {
 
   const { messages, sendMessage } = useWebSocket(userEmail)
 
-  useEffect(() => {
-    console.warn(messages)
-  }, [messages])
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  const { conversationId, createConversation } = useConversationStore(state => state)
+  const { conversationAlias } = useConversationStore(state => state)
 
   const handleInput = () => {
     const textarea = textareaRef.current
@@ -32,8 +29,7 @@ export default function ChatInput () {
   }
 
   const handleSendChat = () => {
-    const conversationId = 'f60840e2-1c7d-48b3-90a9-a7a15bfde82e'
-    if (!conversationId) {
+    if (!conversationAlias) {
       const chat: NewConversationChat = {
         fromUser: 1,
         fromModel: null,
@@ -52,7 +48,7 @@ export default function ChatInput () {
         textContent: textareaRef.current?.value,
         timestamp: new Date()
       }
-      sendMessage({ chat, conversationAlias: 'f60840e2-1c7d-48b3-90a9-a7a15bfde82e' }, 'NEW_CHAT')
+      sendMessage({ chat, conversationAlias }, 'NEW_CHAT_IN_CONVERSATION')
     }
   }
 
@@ -62,7 +58,7 @@ export default function ChatInput () {
         ref={textareaRef}
         placeholder='Ask the crew...'
         className='w-full pt-1 text-xl rounded bg-transparent focus:outline-none focus:ring-0 resize-none overflow-hidden'
-        style={{ height: '2em' }} // initial height
+        style={{ height: '2em' }}
         onInput={handleInput}
       />
       <Button

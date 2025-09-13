@@ -10,7 +10,6 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-// Define your custom WebSocket type here
 type CustomWebSocket = WebSocket & {
   userEmail?: string | null
 }
@@ -71,7 +70,7 @@ app.prepare().then(() => {
           ws.send(JSON.stringify({ chat, conversationAlias }))
           break
         }
-        case 'NEW_MESSAGE': {
+        case 'NEW_CHAT_IN_CONVERSATION': {
           const chat = await handleNewChatMessage(ws.userEmail as string, message.conversationAlias, message.chat)
           ws.send(JSON.stringify({ chat }))
           break
