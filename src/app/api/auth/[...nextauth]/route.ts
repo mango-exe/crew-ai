@@ -16,13 +16,12 @@ import { AvailableLLMS } from '@/lib/types/schema/llm.types'
 import { DefaultLLMModels } from '@/lib/types/schema/llm-model.types'
 import { dbConnection } from '@/lib/db'
 
+import { seedLLMModels } from '@/lib/db/seed/llm-models-seed'
 
 const userRepository = new UserRepository(dbConnection)
 const userLLMPreferencesRepository = new UserLLMPreferencesRepository(dbConnection)
 const llmRepository = new LLMRepository(dbConnection)
 const llmModelRepostory = new LLMModelRepository(dbConnection)
-
-import { seedLLMModels } from '@/lib/db/seed/llm-models-seed'
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -80,7 +79,7 @@ export const authOptions: AuthOptions = {
 
           const createdUser = await userRepository.getUserByEmail(user.email)
 
-          if (createdUser) {
+          if (createdUser != null) {
             for (const availableLLM of Object.values(AvailableLLMS)) {
               const llm = await llmRepository.getLLMByName(availableLLM)
               const defaultModelName = DefaultLLMModels[availableLLM.toUpperCase() as keyof typeof DefaultLLMModels]
@@ -88,7 +87,7 @@ export const authOptions: AuthOptions = {
 
               const isDefault = availableLLM === 'openai'
 
-              if (!llm || !llmModel) {
+              if ((llm == null) || (llmModel == null)) {
                 continue
               }
 

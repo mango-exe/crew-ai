@@ -13,17 +13,17 @@ const userRepository = new UserRepository(dbConnection)
 const userLLMPreferencesRepository = new UserLLMPreferencesRepository(dbConnection)
 const llmRepository = new LLMRepository(dbConnection)
 
-export async function PUT (request: Request, { params }: { params: Promise<{ llmId: string }>}) {
+export async function PUT (request: Request, { params }: { params: Promise<{ llmId: string }> }) {
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session) {
+    if (session == null) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
     const user = await userRepository.getUserByEmail(session.user.email)
 
-    if (!user) {
+    if (user == null) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
@@ -31,7 +31,7 @@ export async function PUT (request: Request, { params }: { params: Promise<{ llm
 
     const llm = await llmRepository.getLLMById(parseInt(llmId))
 
-    if (!llm) {
+    if (llm == null) {
       return NextResponse.json({ message: 'Bad request' }, { status: 400 })
     }
 

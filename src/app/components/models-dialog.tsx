@@ -24,7 +24,6 @@ export default function ModelsDialog ({ isVisible, onClose }: { isVisible: boole
 
   const [selectedLLMPreferences, setSelectedLLMPreferences] = useState<PopulatedUserLLMPreferences | null>(null)
 
-
   useEffect(() => {
     getLLMS()
   }, [])
@@ -42,11 +41,11 @@ export default function ModelsDialog ({ isVisible, onClose }: { isVisible: boole
   }
 
   const handleSetLLMModel = (llmModel: LLMModel) => {
-    setLLMModel(selectedLLM?.id.toString() as string, llmModel.id.toString() as string)
+    setLLMModel(selectedLLM?.id.toString() as string, llmModel.id.toString())
   }
 
   const llmTemplate = (llm: LLMPopulatedWithModels) => {
-    const isSelected = selectedLLM?.id === llm.id;
+    const isSelected = selectedLLM?.id === llm.id
 
     return (
       <div
@@ -65,14 +64,13 @@ export default function ModelsDialog ({ isVisible, onClose }: { isVisible: boole
     )
   }
 
-
   const llmModelTemplate = (llmModel: LLMModel) => {
     const isSelected = llmsPreferences.find(preference => preference.llmModel.id === llmModel?.id)
 
     return (
       <div
         className={`transition-colors duration-200 text-white/80 hover:bg-white/10 hover:text-white rounded-3xl p-2 cursor-pointer select-none
-                    ${isSelected ? 'bg-white/20 text-white' : ''}`}
+                    ${(isSelected != null) ? 'bg-white/20 text-white' : ''}`}
         onDoubleClick={() => handleSetLLMModel(llmModel)}
       >
         {llmModel.modelName}
@@ -100,19 +98,19 @@ export default function ModelsDialog ({ isVisible, onClose }: { isVisible: boole
               </div>
 
             </div>
-              {selectedLLMPreferences && (
+            {(selectedLLMPreferences != null) && (
+              <div>
+                <div className='text-xl font-bold'>LLM preferences</div>
+                <div className='flex flex-row items-center gap-x-1'>
+                  <span className='font-bold mr-1'>Is default LLM:</span>
+                  <span>{selectedLLMPreferences?.isDefault ? 'Yes' : 'No'}</span>
+                  <Switch checked={selectedLLMPreferences?.isDefault} onCheckedChange={() => handleIsDefaultChange(selectedLLM?.id?.toString() as string)} />
+                </div>
                 <div>
-                  <div className='text-xl font-bold'>LLM preferences</div>
-                  <div className='flex flex-row items-center gap-x-1'>
-                    <span className='font-bold mr-1'>Is default LLM:</span>
-                    <span>{selectedLLMPreferences?.isDefault ? 'Yes' : 'No'}</span>
-                    <Switch checked={selectedLLMPreferences?.isDefault} onCheckedChange={() => handleIsDefaultChange(selectedLLM?.id?.toString() as string)} />
-                  </div>
-                  <div>
-                    <span className='font-bold mr-1'>LLM selected model:</span>
-                    <span>{selectedLLMPreferences?.llmModel.modelName}</span>
-                  </div>
-                </div>)}
+                  <span className='font-bold mr-1'>LLM selected model:</span>
+                  <span>{selectedLLMPreferences?.llmModel.modelName}</span>
+                </div>
+              </div>)}
           </DialogHeader>
         </DialogContent>
       </DialogPortal>
