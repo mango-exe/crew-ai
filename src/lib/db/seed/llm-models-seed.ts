@@ -2,13 +2,11 @@ import 'reflect-metadata'
 
 import axios from 'axios'
 
-import { Container } from 'typedi'
-import { DBConnection } from '@/lib/db/index'
 
 import { llms } from '@/lib/db/schema/llm'
 import { llmModels } from '@/lib/db/schema/llm-model'
 
-const dbConnection = Container.get(DBConnection)
+import { dbConnection } from '..'
 
 async function listAllModels () {
   const mistralReq = axios.get('https://api.mistral.ai/v1/models', {
@@ -55,7 +53,7 @@ export async function seedLLMModels () {
       if (!providerMap[name]) {
         const result = await dbConnection.client
           .insert(llms)
-          .values({ name, isDefault: false })
+          .values({ name })
           .$returningId()
 
         providerMap[name] = result[0].id

@@ -49,7 +49,7 @@ export async function handleNewConversation (userEmail: string, chat: NewChat): 
 
   const newUserChat = await chatRepository.createChat(newUserChatDetails)
 
-  if (!newUserChat.toModel) {
+  if (newUserChat.toModel == null) {
     throw new Error('LLM model not found')
   }
 
@@ -68,7 +68,7 @@ export async function handleNewConversation (userEmail: string, chat: NewChat): 
     llm.name as AvailableLLMS,
     llmModel.modelName!,
     newUserChat.textContent as string,
-    newConversation.alias as string
+    newConversation.alias
   )
 
   const newAIChatDetails: NewChat = {
@@ -83,12 +83,12 @@ export async function handleNewConversation (userEmail: string, chat: NewChat): 
   const newAIChat = await chatRepository.createChat(newAIChatDetails)
 
   return {
-    conversationAlias: newConversation.alias as string,
+    conversationAlias: newConversation.alias,
     chat: newAIChat
   }
 }
 
-export async function handleNewChatMessage(
+export async function handleNewChatMessage (
   userEmail: string,
   conversationAlias: string,
   chat: NewChat
@@ -141,7 +141,7 @@ export async function handleNewChatMessage(
     llm.name as AvailableLLMS,
     llmModel.modelName!,
     newUserChat.textContent as string,
-    conversation.alias as string
+    conversation.alias
   )
 
   const newAIChatDetails: NewChat = {

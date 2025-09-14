@@ -1,11 +1,13 @@
 import { createStore, StoreApi, useStore } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
 import { LLMSStore, LLMSState } from '@/lib/types/stores/llms.types'
-import { getLLMS, setDefaultLLM, setLLMModel } from './actions/llms-actions'
+import { LLMPopulatedWithModels } from '../types/schema/llm.types'
+import { getLLMS, setDefaultLLM, setLLMModel, getLLMSPreferences } from './actions/llms-actions'
 
 export const initialState: LLMSState = {
   defaultLLM: null,
   availableLLMS: [],
+  llmsPreferences: [],
   fetching: false,
   fetched: false,
   error: null
@@ -19,7 +21,8 @@ export const createLLMSStore = (
       ...initState,
       ...getLLMS(...args),
       ...setDefaultLLM(...args),
-      ...setLLMModel(...args)
+      ...setLLMModel(...args),
+      ...getLLMSPreferences(...args)
     }))
   )
 }

@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { ComponentType, PropsWithChildren } from 'react'
 import { Spinner } from '@/app/components/ui/shadcn-io/spinner'
 
-export function withAuth<P extends object>(
+export function withAuth<P extends object> (
   WrappedComponent: ComponentType<P>
 ): ComponentType<P> {
   const AuthenticatedComponent = (props: P) => {
@@ -13,13 +13,13 @@ export function withAuth<P extends object>(
 
     if (status === 'loading') {
       return (
-        <div className="flex flex-col items-center pt-24 text-center mt-60">
+        <div className='flex flex-col items-center pt-24 text-center mt-60'>
           <Spinner height={70} width={70} />
         </div>
       )
     }
 
-    if (!session) {
+    if (session == null) {
       router.push('/')
       return null
     }

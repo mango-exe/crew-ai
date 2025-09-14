@@ -1,6 +1,6 @@
 import { StateCreator } from 'zustand'
 import { ConversationStore } from '@/lib/types/stores/conversation.types'
-import { NewChat, NewConversationChat } from '@/lib/types/schema/chat.types'
+import { NewChat, PopulatedChat } from '@/lib/types/schema/chat.types'
 import { SERVER } from '@/lib/global/config'
 import axios from 'axios'
 
@@ -46,6 +46,18 @@ export const selectConversation: StateCreator<ConversationStore, [], [], { selec
   }
 })
 
+export const addChatToConversation: StateCreator<ConversationStore, [], [], { addChatToConversation: (chat: PopulatedChat | NewChat) => void }> = (set, get) => ({
+  addChatToConversation: (chat: PopulatedChat | NewChat) => {
+    set({ chats: [...get().chats, chat] })
+  }
+})
+
+export const newConversation: StateCreator<ConversationStore, [], [], { newConversation: () => void }> = (set, get) => ({
+  newConversation: () => {
+    set({ chats: [], conversationAlias: null })
+  }
+})
+
 export const deleteConversation: StateCreator<ConversationStore, [], [], { deleteConversation: (conversationId: string) => Promise<void> }> = (set, get) => ({
   deleteConversation: async (conversationId: string) => {
     set({ fetching: true })
@@ -61,7 +73,6 @@ export const deleteConversation: StateCreator<ConversationStore, [], [], { delet
     }
   }
 })
-
 
 // export const createConversation: StateCreator<ConversationStore, [], [], { createConversation: (chat: NewConversationChat) => Promise<void> }> = (set, get) => ({
 //   createConversation: async (chat: NewConversationChat) => {

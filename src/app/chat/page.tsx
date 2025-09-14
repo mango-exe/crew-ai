@@ -1,5 +1,5 @@
 import ChatPage from '@/app/components/chat-page'
 
-export default function NewConversationChatPage() {
+export default function NewConversationChatPage () {
   return <ChatPage />
 }

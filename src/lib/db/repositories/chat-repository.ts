@@ -4,7 +4,7 @@ import { chats } from '@/lib/db/schema/chat'
 import { users } from '@/lib/db/schema/user'
 import { llms } from '@/lib/db/schema/llm'
 import { llmModels } from '../schema/llm-model'
-import { Chat, NewChat, PopulatedChat } from '@/lib/types/schema/chat.types'
+import { NewChat, PopulatedChat } from '@/lib/types/schema/chat.types'
 import { alias } from 'drizzle-orm/mysql-core'
 
 export class ChatRepository {
@@ -23,7 +23,6 @@ export class ChatRepository {
     const toModelLLMAlias = alias(llms, 'toModelLLM')
     const fromModelLLMAlias = alias(llms, 'fromModelLLM')
 
-
     const rows = await this.connection.client
       .select({
         id: chats.id,
@@ -39,7 +38,6 @@ export class ChatRepository {
 
         toUserEmail: toUserAlias.email,
 
-
         fromModelName: fromModelAlias.modelName,
         fromModelIsMultiModal: fromModelAlias.isMultiModal,
         fromModelLLMId: fromModelAlias.llmId,
@@ -50,7 +48,7 @@ export class ChatRepository {
         toModelIsMultiModal: toModelAlias.isMultiModal,
         toModelLLMId: toModelAlias.llmId,
         toModelLLMName: toModelLLMAlias.name,
-        toModelLLMIsDefault: toModelLLMAlias.isDefault,
+        toModelLLMIsDefault: toModelLLMAlias.isDefault
 
       })
       .from(chats)
@@ -61,7 +59,6 @@ export class ChatRepository {
       .leftJoin(toModelLLMAlias, eq(toModelAlias.llmId, toModelLLMAlias.id))
       .leftJoin(fromModelLLMAlias, eq(fromModelAlias.llmId, fromModelLLMAlias.id))
       .where(eq(chats.id, result.id))
-
 
     return {
       id: rows[0].id,
@@ -93,7 +90,7 @@ export class ChatRepository {
       },
       textContent: rows[0].textContent || null,
       timestamp: rows[0].timestamp,
-      conversationId: rows[0].conversationId || null,
+      conversationId: rows[0].conversationId || null
     }
   }
 }

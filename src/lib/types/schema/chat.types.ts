@@ -1,8 +1,7 @@
 import { chats } from '@/lib/db/schema/chat'
 
 export type Chat = typeof chats.$inferSelect
-export type NewChat = typeof chats.$inferInsert
-export type NewConversationChat = Omit<NewChat, 'conversationId' | 'id'>
+export type NewChat = Omit<typeof chats.$inferInsert, 'conversationId' | 'id'>
 
 export interface PopulatedChat {
   id: number
@@ -21,6 +20,6 @@ export interface PopulatedChat {
     modelName: string | null
     isMultiModal: boolean | null
     llm: { id: number | null, name: string | null }
-  } | null,
+  } | null
   conversationId: number | null
 }

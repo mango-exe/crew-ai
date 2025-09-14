@@ -1,0 +1,1 @@
+ALTER TABLE `user-llm-preferences` DROP INDEX `user-llm-preferences_isDefault_unique`;

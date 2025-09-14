@@ -1,6 +1,28 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* scope with a utility-class */
+.thin-white-scrollbar {
+  scrollbar-width: thin;           /* Firefox */
+  scrollbar-color: white transparent;
+}
+
+/* WebKit browsers */
+.thin-white-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.thin-white-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.thin-white-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #ffffff;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

@@ -72,7 +72,7 @@ app.prepare().then(() => {
         }
         case 'NEW_CHAT_IN_CONVERSATION': {
           const chat = await handleNewChatMessage(ws.userEmail as string, message.conversationAlias, message.chat)
-          ws.send(JSON.stringify({ chat }))
+          ws.send(JSON.stringify(chat))
           break
         }
       }
@@ -84,7 +84,6 @@ app.prepare().then(() => {
   })
 
   server.listen(port, () => {
-    console.log(`> Ready on http://localhost:${port}`)
-    console.log('> WebSocket server attached to HTTP server.')
+    console.log(`> WebSocket server ready on http://localhost:${port}`)
   })
 })

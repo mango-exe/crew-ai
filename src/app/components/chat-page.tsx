@@ -1,4 +1,5 @@
 'use client'
+import React, { useEffect } from 'react'
 import { withAuth } from '@/app/components/auth-guard'
 import { SidebarProvider, SidebarTrigger } from '../components/ui/sidebar'
 
@@ -6,7 +7,7 @@ import ChatInput from '@/app/components/chat-input'
 import ChatMessages from '@/app/components/chat-messages'
 import ChatSidebar from '../components/chat-sidebar'
 
-function ChatPage() {
+function ChatPage () {
   return (
     <div>
       <SidebarProvider>

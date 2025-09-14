@@ -4,7 +4,7 @@ import React, { useRef, useEffect } from 'react'
 import { Button } from '@/app/components/ui/button'
 import { Send } from 'lucide-react'
 import { useConversationStore } from '@/lib/stores/conversation-store'
-import { NewConversationChat } from '@/lib/types/schema/chat.types'
+import { NewChat } from '@/lib/types/schema/chat.types'
 import { useWebSocket } from '@/hooks/useWebSocket'
 import { useSession } from 'next-auth/react'
 
@@ -13,24 +13,23 @@ export default function ChatInput () {
 
   const userEmail = session?.user?.email || null
 
-  const { messages, sendMessage } = useWebSocket(userEmail)
-
+  const { sendMessage } = useWebSocket(userEmail)
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  const { conversationAlias } = useConversationStore(state => state)
+  const { conversationAlias, addChatToConversation } = useConversationStore(state => state)
 
   const handleInput = () => {
     const textarea = textareaRef.current
     if (textarea != null) {
-      textarea.style.height = '2em' // reset to initial height
-      textarea.style.height = textarea.scrollHeight + 'px' // expand to fit content
+      textarea.style.height = '2em'
+      textarea.style.height = textarea.scrollHeight + 'px'
     }
   }
 
   const handleSendChat = () => {
     if (!conversationAlias) {
-      const chat: NewConversationChat = {
+      const chat: NewChat = {
         fromUser: 1,
         fromModel: null,
         toUser: null,
@@ -38,9 +37,10 @@ export default function ChatInput () {
         textContent: textareaRef.current?.value,
         timestamp: new Date()
       }
+      addChatToConversation(chat)
       sendMessage({ chat }, 'NEW_CONVERSATION')
     } else {
-      const chat: NewConversationChat = {
+      const chat: NewChat = {
         fromUser: 1,
         fromModel: null,
         toUser: null,
@@ -48,6 +48,7 @@ export default function ChatInput () {
         textContent: textareaRef.current?.value,
         timestamp: new Date()
       }
+      addChatToConversation(chat)
       sendMessage({ chat, conversationAlias }, 'NEW_CHAT_IN_CONVERSATION')
     }
   }

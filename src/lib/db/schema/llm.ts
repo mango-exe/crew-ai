@@ -5,6 +5,5 @@ const llmEnumValues = Object.values(AvailableLLMS) as [string, ...string[]]
 
 export const llms = mysqlTable('llms', {
   id: int().primaryKey().autoincrement(),
-  name: mysqlEnum('name', llmEnumValues).notNull(),
-  isDefault: boolean().notNull().default(false)
+  name: mysqlEnum('name', llmEnumValues).notNull()
 })
