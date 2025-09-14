@@ -8,145 +8,118 @@ import { NewChat } from '@/lib/types/schema/chat.types'
 import { useWebSocket } from '@/hooks/useWebSocket'
 import { useSession } from 'next-auth/react'
 import { useLLMStore } from '@/lib/stores/llms-store'
-import { llms } from '@/lib/db/schema/llm'
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/app/components/ui/avatar"
+import { Avatar, AvatarImage } from "@/app/components/ui/avatar"
 
-// sample users — replace with real data from API/store
-// const mockUsers: { id: number; name: string }[] = [
-//   { id: 1, name: 'Alice' },
-//   { id: 2, name: 'Bob' },
-//   { id: 3, name: 'Charlie' }
-// ]
-
-export default function ChatInput () {
+export default function ChatInput() {
   const { data: session } = useSession()
   const userEmail = session?.user?.email || null
   const { sendMessage } = useWebSocket(userEmail)
-
   const { llmsPreferences } = useLLMStore(state => state)
-
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
-
   const { conversationAlias, addChatToConversation } = useConversationStore(state => state)
 
-  const [llmMetions, setLLMMentions] = useState<{ llmId: number, llmModelId: number,  llmName: string, llmModelName: string }[]>([])
+  const editorRef = useRef<HTMLDivElement>(null)
+  const [llmMetions, setLLMMentions] = useState<{ llmId: number, llmModelId: number, llmName: string, llmModelName: string }[]>([])
   const [isMentionDetected, setIsMentionDetected] = useState(false)
   const [mentionQuery, setMentionQuery] = useState('')
   const [filteredMentions, setFilteredMentions] = useState(llmMetions)
-
+  const [selectedMention, setSelectedMention] = useState<{
+    llmId: number, llmModelId: number, llmName: string, llmModelName: string
+  } | null>(null)
 
   useEffect(() => {
     if (!llmsPreferences) return
-
     const mappedPreferences = llmsPreferences.map(e => ({
       llmId: e.llmModel.id,
       llmModelId: e.llmModel.id,
       llmName: e.llm.name ?? '',
       llmModelName: e.llmModel.modelName ?? ''
     }))
-
     setLLMMentions(mappedPreferences)
   }, [llmsPreferences])
 
+  const mentionDisplay = {
+    openai: 'ChatGPT',
+    gemini: 'Gemini',
+    mistral: 'Mistral'
+  } as const
+
+  type MentionKeys = keyof typeof mentionDisplay
 
   const handleInput = () => {
-    const textarea = textareaRef.current
-    if (!textarea) return
+    const editor = editorRef.current
+    if (!editor) return
+    const text = editor.innerText
+    const cursorPos = window.getSelection()?.anchorOffset || 0
+    const textBeforeCursor = text.slice(0, cursorPos)
 
-    // auto-grow textarea
-    textarea.style.height = '2em'
-    textarea.style.height = textarea.scrollHeight + 'px'
-
-    const fullText = textarea.value
-    const cursorPos = textarea.selectionStart
-    const textBeforeCursor = fullText.slice(0, cursorPos)
-
-    // last "@" before cursor (cursor-aware)
-    const lastAtIndex = textBeforeCursor.lastIndexOf('@')
-
-    if (lastAtIndex === -1) {
-      // no @ before cursor -> no mention UI
+    // Only detect one mention at the beginning
+    if (!text.startsWith('@') || text.includes('@', 1)) {
       setIsMentionDetected(false)
-      setMentionQuery('')
-      setFilteredMentions(llmMetions)
-      return
-    }
-
-    // count total @ in whole text
-    const totalAtCount = (fullText.match(/@/g) || []).length
-
-    // If there is already more than one @ in the text, DO NOT show mention dropdown
-    // This enforces the "only one mention in the whole text" rule.
-    if (totalAtCount > 1) {
-      setIsMentionDetected(false)
-      setMentionQuery('')
       setFilteredMentions([])
       return
     }
 
-    // Now totalAtCount === 1 and lastAtIndex !== -1 => we're typing/editing the single allowed mention
-    const query = textBeforeCursor.slice(lastAtIndex + 1)
-
-    // stop detecting if space/newline typed after @
+    const query = textBeforeCursor.slice(1)
     if (query.includes(' ') || query.includes('\n')) {
       setIsMentionDetected(false)
-      setMentionQuery('')
       setFilteredMentions([])
       return
     }
 
     setMentionQuery(query.toLowerCase())
-
-    const matches = llmMetions.filter(u => u.llmName.toLowerCase().includes(query.toLowerCase()))
+    const matches = llmMetions.filter(u =>
+      u.llmName.toLowerCase().includes(query.toLowerCase())
+    )
     setFilteredMentions(matches)
     setIsMentionDetected(true)
   }
 
-  const handleSelectMention = (mention: { llmId: number, llmModelId: number,  llmName: string, llmModelName: string }) => {
-    const textarea = textareaRef.current
-    if (!textarea) return
+  const handleSelectMention = (mention: { llmId: number, llmModelId: number, llmName: string, llmModelName: string }) => {
+    const editor = editorRef.current
+    if (!editor) return
 
-    const cursorPos = textarea.selectionStart
-    const textBeforeCursor = textarea.value.slice(0, cursorPos)
-    const textAfterCursor = textarea.value.slice(cursorPos)
+    const displayName = mentionDisplay[mention.llmName as MentionKeys] || mention.llmName
 
-    // replace the @query that is right before the cursor with the chosen username + a trailing space
-    const newBefore = textBeforeCursor.replace(/@[\w]*$/, `@${mention.llmName} `)
-    const newText = newBefore + textAfterCursor
+    // Insert the friendly name in the editor
+    editor.innerHTML = `<span class="text-blue-500 font-bold">@${displayName}</span>&nbsp;`
 
-    textarea.value = newText
+    // Move caret to end
+    const range = document.createRange()
+    const sel = window.getSelection()
+    const lastNode = editor.childNodes[editor.childNodes.length - 1]
+    if (lastNode) {
+      range.setStart(lastNode, lastNode.textContent?.length ?? 0)
+      range.collapse(true)
+      sel?.removeAllRanges()
+      sel?.addRange(range)
+    }
 
-    // place caret right after the inserted mention
-    const newCursorPos = newBefore.length
-    textarea.setSelectionRange(newCursorPos, newCursorPos)
-    textarea.focus()
-
-    // reset mention UI (we still have exactly one @ in the text now)
+    editor.focus()
     setIsMentionDetected(false)
     setMentionQuery('')
     setFilteredMentions(llmMetions)
-
-    // adjust height after insertion
-    textarea.style.height = '2em'
-    textarea.style.height = textarea.scrollHeight + 'px'
+    setSelectedMention(mention) // store the real mention object for sending
   }
 
+
   const handleSendChat = () => {
-    const textValue = textareaRef.current?.value
-    if (!textValue || textValue.trim() === '') return
+    const editor = editorRef.current
+    if (!editor) return
+    const text = editor.innerText.trim()
+    if (!text) return
 
     const chat: NewChat = {
       fromUser: 1,
       fromModel: null,
       toUser: null,
       toModel: 2,
-      textContent: textValue,
+      textContent: text,
       timestamp: new Date()
+    }
+
+    if (selectedMention) {
+      console.log('Selected mention:', selectedMention)
     }
 
     if (!conversationAlias) {
@@ -157,23 +130,12 @@ export default function ChatInput () {
       sendMessage({ chat, conversationAlias }, 'NEW_CHAT_IN_CONVERSATION')
     }
 
-    // clear textarea and reset UI
-    if (textareaRef.current) {
-      textareaRef.current.value = ''
-      textareaRef.current.style.height = '2em'
-    }
+    editor.innerHTML = ''
     setIsMentionDetected(false)
     setMentionQuery('')
     setFilteredMentions(llmMetions)
+    setSelectedMention(null)
   }
-
-  const mentionDisplay = {
-    openai: 'ChatGPT',
-    gemini: 'Gemini',
-    mistral: 'Mistral'
-  } as const;
-
-  type MentionKeys = keyof typeof mentionDisplay;
 
   return (
     <div className='relative w-[60%]'>
@@ -182,33 +144,27 @@ export default function ChatInput () {
           {filteredMentions.map(mention => (
             <div
               key={mention.llmId}
-              className={`
-                flex items-center gap-2 w-full p-3 rounded-3xl cursor-pointer
-                transition-colors duration-200
-                hover:bg-white/10 hover:text-white
-              `}
+              className='flex items-center gap-2 w-full p-3 rounded-3xl cursor-pointer transition-colors duration-200 hover:bg-white/10 hover:text-white'
               onClick={() => handleSelectMention(mention)}
             >
-              <div className="flex flex-row w-full items-center">
-                <span className="font-bold text-blue-500">
-                  @{mentionDisplay[mention.llmName as MentionKeys]}
-                </span>
-                <Avatar className="ml-auto">
-                  <AvatarImage src={`/${mention.llmName}.svg`} className="p-1" />
-                </Avatar>
-              </div>
+              <span className='font-bold text-blue-500'>
+                @{mentionDisplay[mention.llmName as MentionKeys]}
+              </span>
+              <Avatar className="ml-auto">
+                <AvatarImage src={`/${mention.llmName}.svg`} className="p-1" />
+              </Avatar>
             </div>
           ))}
         </div>
       )}
 
       <div className='glass-surface flex items-center gap-2 rounded-3xl p-2 shadow-md z-10'>
-        <textarea
-          ref={textareaRef}
-          placeholder='Ask the crew...'
-          className='w-full pt-1 text-xl rounded bg-transparent focus:outline-none focus:ring-0 resize-none overflow-hidden'
-          style={{ height: '2em' }}
+        <div
+          ref={editorRef}
+          contentEditable
           onInput={handleInput}
+          className='w-full pt-1 text-xl rounded bg-transparent focus:outline-none focus:ring-0 resize-none overflow-auto'
+          style={{ minHeight: '2em', maxHeight: '8em' }}
         />
         <Button
           size='icon'
