@@ -7,6 +7,13 @@ import { useWebSocket } from '@/hooks/useWebSocket'
 import { useSession } from 'next-auth/react'
 import { useRouter, useParams } from 'next/navigation'
 
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/app/components/ui/avatar"
+
+
 export default function ChatMessages () {
   const { data: session } = useSession()
   const router = useRouter()
@@ -53,11 +60,13 @@ export default function ChatMessages () {
 
     return (
       <div className={`flex items-end gap-2 ${isUserMessage ? 'justify-end' : 'justify-start'}`}>
-        {/* AI avatar on left */}
-        {isAIMessage && <User className='h-8 w-8 rounded-full' />}
+        {isAIMessage &&
+          <Avatar>
+            <AvatarImage src={`/${message.fromModel.modelName}.svg` } />
+          </Avatar>
+        }
 
         <div className='flex flex-col'>
-          {/* Message bubble */}
           <div
             className={`max-w-[70%] px-4 py-2 rounded-2xl text-white break-words shadow-md ${
               isUserMessage ? 'bg-yellow-200 rounded-br-none' : 'bg-blue-500 rounded-bl-none'
@@ -66,7 +75,6 @@ export default function ChatMessages () {
             {removeModelNameFromChatText(message.textContent)}
           </div>
 
-          {/* AI model info below the bubble */}
           {isAIMessage && (
             <div className='mt-1 text-xs text-gray-300'>
               {message.fromModel.llm.name} - {message.fromModel.modelName}
@@ -74,11 +82,16 @@ export default function ChatMessages () {
           )}
         </div>
 
-        {/* User avatar on right */}
-        {isUserMessage && <User className='h-8 w-8 rounded-full' />}
+        {isUserMessage &&
+          <Avatar>
+            <AvatarImage src='/user.svg' className='h-8 w-8 rounded-full' />
+          </Avatar>
+        }
       </div>
     )
   }
+
+  // <User className='h-8 w-8 rounded-full' />
 
   return (
     <div className='h-[94vh] w-full p-4 flex flex-col gap-3 overflow-y-auto'>

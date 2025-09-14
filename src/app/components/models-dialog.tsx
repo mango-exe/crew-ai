@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -19,7 +18,6 @@ import { PopulatedUserLLMPreferences } from '@/lib/types/schema/user-llm-prefere
 
 export default function ModelsDialog ({ isVisible, onClose }: { isVisible: boolean, onClose: () => void }) {
   const [selectedLLM, setSelectedLLM] = useState<LLMPopulatedWithModels | null>(null)
-  const [selectedLLMModel, setSelectedLLMModel] = useState<LLMModel | null>(null)
   const { availableLLMS, getLLMS, llmsPreferences, setDefaultLLM, setLLMModel } = useLLMStore(state => state)
 
   const [selectedLLMPreferences, setSelectedLLMPreferences] = useState<PopulatedUserLLMPreferences | null>(null)
