@@ -17,7 +17,6 @@ export class GeminiModel extends Runnable {
   name = 'Gemini'
 
   async invoke (input: any): Promise<AIMessage> {
-    console.warn({ input })
     const messages: BaseMessage[] = input.messages ?? input.chat_history ?? []
     return await this.model.invoke(messages)
   }

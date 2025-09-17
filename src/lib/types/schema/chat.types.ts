@@ -2,6 +2,10 @@ import { chats } from '@/lib/db/schema/chat'
 
 export type Chat = typeof chats.$inferSelect
 export type NewChat = Omit<typeof chats.$inferInsert, 'conversationId' | 'id'>
+export type NewChatInConversation = Omit<typeof chats.$inferInsert, 'id'>
+export type NewAiChatWithAnimation = NewChat & {
+  animate: boolean
+}
 
 export interface PopulatedChat {
   id: number

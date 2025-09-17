@@ -34,8 +34,8 @@ export default function ChatSidebar () {
       title: 'New Conversation',
       icon: Plus,
       action: () => {
-        router.push('/chat')
         newConversation()
+        router.push('/chat')
       }
     },
     {
@@ -48,7 +48,7 @@ export default function ChatSidebar () {
   ]
 
   const handleSelectChat = (conversationAlias: string) => {
-    selectConversation(conversationAlias)
+    selectConversation()
     router.push(`/chat/${conversationAlias}`)
   }
 

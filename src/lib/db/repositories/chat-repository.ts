@@ -4,13 +4,13 @@ import { chats } from '@/lib/db/schema/chat'
 import { users } from '@/lib/db/schema/user'
 import { llms } from '@/lib/db/schema/llm'
 import { llmModels } from '../schema/llm-model'
-import { NewChat, PopulatedChat } from '@/lib/types/schema/chat.types'
+import { NewChat, NewChatInConversation, PopulatedChat } from '@/lib/types/schema/chat.types'
 import { alias } from 'drizzle-orm/mysql-core'
 
 export class ChatRepository {
   constructor (private readonly connection: DBConnection = dbConnection) {}
 
-  async createChat (data: NewChat): Promise<PopulatedChat> {
+  async createChat (data: NewChatInConversation): Promise<PopulatedChat> {
     const [result] = await this.connection.client
       .insert(chats)
       .values(data)
@@ -42,13 +42,11 @@ export class ChatRepository {
         fromModelIsMultiModal: fromModelAlias.isMultiModal,
         fromModelLLMId: fromModelAlias.llmId,
         fromModelLLMName: fromModelLLMAlias.name,
-        fromModelLLMIsDefault: fromModelLLMAlias.isDefault,
 
         toModelName: toModelAlias.modelName,
         toModelIsMultiModal: toModelAlias.isMultiModal,
         toModelLLMId: toModelAlias.llmId,
         toModelLLMName: toModelLLMAlias.name,
-        toModelLLMIsDefault: toModelLLMAlias.isDefault
 
       })
       .from(chats)

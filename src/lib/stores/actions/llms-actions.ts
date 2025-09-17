@@ -21,15 +21,14 @@ export const getLLMS: StateCreator<LLMSStore, [], [], { getLLMS: () => Promise<v
 
 export const setDefaultLLM: StateCreator<LLMSStore, [], [], { setDefaultLLM: (llmId: string) => Promise<void> }> = (set, get) => ({
   setDefaultLLM: async (llmId: string) => {
-    set({ fetching: true })
     try {
       const response = await axios.put(`${SERVER}/api/llms/${llmId}/default`)
-      set({ llmsPreferences: response.data.llmsPreferences, fetching: false })
+      set({ llmsPreferences: response.data.llmsPreferences })
     } catch (err: unknown) {
       if (err instanceof Error) {
-        set({ error: err.message, fetching: false })
+        set({ error: err.message })
       } else {
-        set({ error: 'Unknown error', fetching: false })
+        set({ error: 'Unknown error' })
       }
     }
   }
@@ -37,13 +36,12 @@ export const setDefaultLLM: StateCreator<LLMSStore, [], [], { setDefaultLLM: (ll
 
 export const setLLMModel: StateCreator<LLMSStore, [], [], { setLLMModel: (llmId: string, llmModelId: string) => Promise<void> }> = (set, get) => ({
   setLLMModel: async (llmId: string, llmModelId: string) => {
-    set({ fetching: true })
     try {
       const response = await axios.put(`${SERVER}/api/llms/${llmId}/models/${llmModelId}`)
-      set({ llmsPreferences: response.data.llmsPreferences, fetching: false })
+      set({ llmsPreferences: response.data.llmsPreferences })
     } catch (err: unknown) {
       if (err instanceof Error) {
-        set({ error: err.message, fetching: false })
+        set({ error: err.message })
       } else {
         set({ error: 'Unknown error', fetching: false })
       }

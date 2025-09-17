@@ -1,11 +1,12 @@
 import { createStore, StoreApi, useStore } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
 import { ConversationState, ConversationStore } from '@/lib/types/stores/conversation.types'
-import { getConversations, getConversation, deleteConversation, selectConversation, addChatToConversation, newConversation } from '@/lib/stores/actions/conversation-actions'
+import { getConversations, getConversation, deleteConversation, selectConversation, newConversation, removeMessageAnimation, addAiChatToConversation, addPopulatedChatToConversation, addUserChatToConversation } from '@/lib/stores/actions/conversation-actions'
 
 export const initialState: ConversationState = {
   conversationAlias: null,
   conversations: [],
+  isExistingConversation: null,
   count: 0,
   chats: [],
   fetching: false,
@@ -21,10 +22,13 @@ export const createConversationStore = (
       ...initState,
       ...getConversation(...args),
       ...getConversations(...args),
-      ...addChatToConversation(...args),
+      ...addAiChatToConversation(...args),
+      ...addPopulatedChatToConversation(...args),
+      ...addUserChatToConversation(...args),
       ...selectConversation(...args),
       ...deleteConversation(...args),
-      ...newConversation(...args)
+      ...newConversation(...args),
+      ...removeMessageAnimation(...args)
     }))
   )
 }

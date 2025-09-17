@@ -9,6 +9,8 @@ import { useWebSocket } from '@/hooks/useWebSocket'
 import { useSession } from 'next-auth/react'
 import { useLLMStore } from '@/lib/stores/llms-store'
 
+import { Spinner } from '@/app/components/ui/shadcn-io/spinner'
+
 import { Avatar, AvatarImage } from "@/app/components/ui/avatar"
 
 export default function ChatInput() {
@@ -16,7 +18,7 @@ export default function ChatInput() {
   const userEmail = session?.user?.email || null
   const { sendMessage } = useWebSocket(userEmail)
   const { llmsPreferences } = useLLMStore(state => state)
-  const { conversationAlias, addChatToConversation } = useConversationStore(state => state)
+  const { conversationAlias, addUserChatToConversation, fetching } = useConversationStore(state => state)
 
   const editorRef = useRef<HTMLDivElement>(null)
   const [llmMetions, setLLMMentions] = useState<{ llmId: number, llmModelId: number, llmName: string, llmModelName: string }[]>([])
@@ -53,7 +55,6 @@ export default function ChatInput() {
     const cursorPos = window.getSelection()?.anchorOffset || 0
     const textBeforeCursor = text.slice(0, cursorPos)
 
-    // Only detect one mention at the beginning
     if (!text.startsWith('@') || text.includes('@', 1)) {
       setIsMentionDetected(false)
       setFilteredMentions([])
@@ -109,24 +110,23 @@ export default function ChatInput() {
     const text = editor.innerText.trim()
     if (!text) return
 
+    const defaultModel = llmsPreferences.find(llm => llm.isDefault)
+
     const chat: NewChat = {
       fromUser: 1,
       fromModel: null,
       toUser: null,
-      toModel: 2,
+      toModel: selectedMention?.llmModelId || defaultModel?.llmModel.id,
       textContent: text,
       timestamp: new Date()
     }
 
-    if (selectedMention) {
-      console.log('Selected mention:', selectedMention)
-    }
 
     if (!conversationAlias) {
-      addChatToConversation(chat)
+      addUserChatToConversation(chat)
       sendMessage({ chat }, 'NEW_CONVERSATION')
     } else {
-      addChatToConversation(chat)
+      addUserChatToConversation(chat)
       sendMessage({ chat, conversationAlias }, 'NEW_CHAT_IN_CONVERSATION')
     }
 
@@ -165,13 +165,20 @@ export default function ChatInput() {
           onInput={handleInput}
           className='w-full pt-1 text-xl rounded bg-transparent focus:outline-none focus:ring-0 resize-none overflow-auto'
           style={{ minHeight: '2em', maxHeight: '8em' }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault()
+              handleSendChat()
+            }
+          }}
         />
         <Button
           size='icon'
           className='rounded-3xl flex items-center justify-center'
           onClick={handleSendChat}
+          disabled={fetching}
         >
-          <Send className='h-5 w-5' />
+          {fetching ? <Spinner height={10} width={10} /> : <Send className='h-5 w-5' />}
         </Button>
       </div>
     </div>

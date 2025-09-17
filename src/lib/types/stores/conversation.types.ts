@@ -1,4 +1,4 @@
-import { Chat, NewChat, PopulatedChat } from '@/lib/types/schema/chat.types'
+import { Chat, NewChat, PopulatedChat, NewAiChatWithAnimation } from '@/lib/types/schema/chat.types'
 import { Conversation } from '@/lib/types/schema/conversation.types'
 
 type ChatItems = PopulatedChat | NewChat
@@ -8,6 +8,7 @@ export interface ConversationState {
   chats: ChatItems[]
   conversations: Conversation[]
   count: number
+  isExistingConversation: boolean | null
   fetching: boolean
   fetched: boolean
   error: string | null
@@ -16,10 +17,13 @@ export interface ConversationState {
 export interface ConversationActions {
   getConversations: () => void
   getConversation: (conversationId: string) => void
-  selectConversation: (conversationAlias: string) => void
+  selectConversation: () => void
   deleteConversation: (conversationId: string) => void
-  addChatToConversation: (chat: PopulatedChat | NewChat) => void
-  newConversation: () => void
+  addAiChatToConversation: (chat: NewAiChatWithAnimation) => void,
+  addPopulatedChatToConversation: (chat: PopulatedChat) => void,
+  addUserChatToConversation: (chat: NewChat) => void,
+  newConversation: () => void,
+  removeMessageAnimation: () => void
 }
 
 export type ConversationStore = ConversationState & ConversationActions

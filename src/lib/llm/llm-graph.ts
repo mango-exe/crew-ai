@@ -50,37 +50,48 @@ export class LLMGraph {
     state: ChatStateType,
     config: any
   ): Promise<Partial<ChatStateType>> => {
-    const model = config?.configurable?.model
+    try {
+      const model = config?.configurable?.model
 
-    if (!model) {
-      throw new Error('No model provided for summarization')
-    }
+      if (!model) {
+        throw new Error('No model provided for summarization')
+      }
 
-    if (state.chat_history && state.chat_history.length > 6) {
-      const summary = state.summary || ''
+      if (state.chat_history && state.chat_history.length > 6) {
+        const summary = state.summary || ''
 
-      const summaryMessage = summary
-        ? `This is a summary of the conversation to date: ${summary}\n\nExtend the summary by taking into account the new messages above:`
-        : 'Create a summary of the conversation above:'
+        const summaryMessage = summary
+          ? `This is a summary of the conversation to date: ${summary}\n\nExtend the summary by taking into account the new messages above:`
+          : 'Create a summary of the conversation above:'
 
-      const messages: BaseMessage[] = [
-        ...state.chat_history,
-        new HumanMessage({ content: summaryMessage })
-      ]
+        const messages: BaseMessage[] = [
+          ...state.chat_history,
+          new HumanMessage(summaryMessage)
+        ]
 
-      const response = await model.invoke(messages)
+        console.warn(model)
+        const response = await model.invoke({ messages })
 
-      const deleteMessages: RemoveMessage[] = state.chat_history
-        .slice(0, -2)
-        .map((m) => new RemoveMessage({ id: m.id as string }))
+        const trimmedHistory = state.chat_history.slice(-2)
+
+
+        return {
+          summary: response.content as string,
+          chat_history: trimmedHistory
+        }
+      }
 
       return {
-        summary: response.content as string,
-        chat_history: deleteMessages
+        summary: '',
+        chat_history: state.chat_history || []
+      }
+    } catch (e) {
+      console.warn(e)
+      return {
+        summary: '',
+        chat_history: state.chat_history || []
       }
     }
-
-    return {}
   }
 
   callModel = async (
@@ -94,7 +105,7 @@ export class LLMGraph {
     }
 
     const promptTemplate = ChatPromptTemplate.fromMessages([
-      ['system', 'You are a helpful assistant which is a member of a conversation like a group chat with other models like ChatGPT, Gemini, Mistral and the user. The chat history or the summary repesents all interactions between the user and the models from the group chat. You can use the context if relevant. This is the cconversation summary so far: {summary}'],
+      ['system', 'You are a helpful assistant which is a member of a conversation like a group chat with other models like ChatGPT, Gemini, Mistral and the user. The chat history or the summary repesents all interactions between the user and the models from the group chat. You can use the context if relevant. This is the cconversation summary so far: {summary}. Each model response in the conversation summary is prepended with <model-name>: to indicate which model gave the respective answer. Do not include <model-name>: in the response, it is only used as information in the chat history to know which model gave a specific answer'],
       new MessagesPlaceholder('chat_history'),
       ['human', '{input}']
     ])
@@ -110,18 +121,18 @@ export class LLMGraph {
       promptTemplate,
       model,
       {
-        answer: (msg: AIMessage) => `<${state.llm}>: ${msg.content}`,
-        context: (prev: any) => prev.context
+        answer: (msg: AIMessage) => `${msg.content}`,
+        context: (prev: any) => prev.context,
+        llm: (prev: any) => prev.llm
       }
     ])
-
     const response = await ragChain.invoke(state)
 
     return {
       chat_history: [
         ...(state.chat_history || []),
         new HumanMessage({ content: state.input }),
-        new AIMessage({ content: response.answer })
+        new AIMessage({ content: `<${state.llm}>:${response.answer}` })
       ],
       context: response.context,
       answer: response.answer
@@ -134,9 +145,10 @@ export class LLMGraph {
   }
 
   async getChat (model: Runnable, prompt: string, conversationId: string) {
-    return await this.app.invoke(
-      { input: prompt, llm: model.name },
-      { configurable: { thread_id: conversationId, model } }
-    )
+    const response = await this.app.invoke(
+            { input: prompt, llm: model.name },
+            { configurable: { thread_id: conversationId, model } }
+          )
+    return response
   }
 }
