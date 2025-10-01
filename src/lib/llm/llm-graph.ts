@@ -56,7 +56,6 @@ export class LLMGraph {
       if (!model) {
         throw new Error('No model provided for summarization')
       }
-
       if (state.chat_history && state.chat_history.length > 6) {
         const summary = state.summary || ''
 
@@ -149,6 +148,10 @@ export class LLMGraph {
             { input: prompt, llm: model.name },
             { configurable: { thread_id: conversationId, model } }
           )
+    const state = (await this.app.getState({ configurable: { thread_id: conversationId, model } })).values
+
+    console.log('Current Graph State:', JSON.stringify(state, null, 2))
+
     return response
   }
 }

@@ -3,8 +3,8 @@ import { ChatRepository } from '../../lib/db/repositories/chat-repository'
 import { LLMRepository } from '../../lib/db/repositories/llm-repository'
 import { LLMModelRepository } from '../../lib/db/repositories/llm-model-repository'
 import { UserRepository } from '../../lib/db/repositories/user-repository'
-import { LLMChatCompletion } from '../../lib/llm/llm-chat-completion'
 
+import { llmChatCompletion } from '@/lib/llm/llm-chat-completion'
 import { dbConnection } from '../../lib/db'
 import { NewConversation } from '../../lib/types/schema/conversation.types'
 import { NewChat, NewChatInConversation, Chat, PopulatedChat } from '../../lib/types/schema/chat.types'
@@ -16,7 +16,6 @@ const chatRepository = new ChatRepository(dbConnection)
 const llmRepository = new LLMRepository(dbConnection)
 const llmModelRepository = new LLMModelRepository(dbConnection)
 const userRepository = new UserRepository(dbConnection)
-const llmChatCompletion = new LLMChatCompletion()
 
 function removeMentionFromChatText(text: string): string {
   return text.replace(/^@\S+\s?/, '')
@@ -73,7 +72,8 @@ export async function handleNewConversation (userEmail: string, chat: NewChat): 
     llm.name as AvailableLLMS,
     llmModel.modelName!,
     removeMentionFromChatText(newUserChat.textContent as string),
-    newConversation.alias
+    newConversation.alias,
+    user.id
   )
 
   const newAIChatDetails: NewChatInConversation = {
@@ -146,7 +146,8 @@ export async function handleNewChatMessage (
     llm.name as AvailableLLMS,
     llmModel.modelName!,
     removeMentionFromChatText(newUserChat.textContent as string),
-    conversation.alias
+    conversation.alias,
+    user.id
   )
 
   const newAIChatDetails: NewChatInConversation = {
