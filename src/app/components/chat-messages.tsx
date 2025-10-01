@@ -9,6 +9,8 @@ import { useWebSocket } from '@/hooks/useWebSocket'
 import { useSession } from 'next-auth/react'
 import { useRouter, useParams } from 'next/navigation'
 
+import { User } from 'lucide-react'
+
 import {
   Avatar,
   AvatarImage,
@@ -95,8 +97,8 @@ export default function ChatMessages () {
         </div>
 
         {isUserMessage &&
-          <Avatar>
-            <AvatarImage src='/user.svg' className='h-8 w-8 rounded-full' />
+          <Avatar className='flex items-center justify-center rounded-full'>
+            <User />
           </Avatar>
         }
       </div>

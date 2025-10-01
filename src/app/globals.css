@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+body {
+  overflow: hidden;
+}
+
 /* scope with a utility-class */
 .thin-white-scrollbar {
   scrollbar-width: thin;           /* Firefox */

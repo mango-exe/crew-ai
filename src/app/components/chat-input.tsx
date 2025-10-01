@@ -51,9 +51,23 @@ export default function ChatInput() {
   const handleInput = () => {
     const editor = editorRef.current
     if (!editor) return
+
     const text = editor.innerText
     const cursorPos = window.getSelection()?.anchorOffset || 0
     const textBeforeCursor = text.slice(0, cursorPos)
+
+    if (text.trim() === '') {
+      setSelectedMention(null)
+    }
+
+    normalizeEditor()
+
+    if (selectedMention) {
+      setIsMentionDetected(false)
+      setFilteredMentions([])
+      return
+    }
+
 
     if (!text.startsWith('@') || text.includes('@', 1)) {
       setIsMentionDetected(false)
@@ -62,11 +76,12 @@ export default function ChatInput() {
     }
 
     const query = textBeforeCursor.slice(1)
-    if (query.includes(' ') || query.includes('\n')) {
+    if ((query.includes(' ') || query.includes('\n'))) {
       setIsMentionDetected(false)
       setFilteredMentions([])
       return
     }
+
 
     setMentionQuery(query.toLowerCase())
     const matches = llmMetions.filter(u =>
@@ -82,10 +97,8 @@ export default function ChatInput() {
 
     const displayName = mentionDisplay[mention.llmName as MentionKeys] || mention.llmName
 
-    // Insert the friendly name in the editor
     editor.innerHTML = `<span class="text-blue-500 font-bold">@${displayName}</span>&nbsp;`
 
-    // Move caret to end
     const range = document.createRange()
     const sel = window.getSelection()
     const lastNode = editor.childNodes[editor.childNodes.length - 1]
@@ -100,7 +113,7 @@ export default function ChatInput() {
     setIsMentionDetected(false)
     setMentionQuery('')
     setFilteredMentions(llmMetions)
-    setSelectedMention(mention) // store the real mention object for sending
+    setSelectedMention(mention)
   }
 
 
@@ -136,6 +149,58 @@ export default function ChatInput() {
     setFilteredMentions(llmMetions)
     setSelectedMention(null)
   }
+
+  const normalizeEditor = () => {
+    const editor = editorRef.current
+    if (!editor) return
+
+    const selection = window.getSelection()
+    if (!selection || !selection.rangeCount) return
+    const preCaretOffset = getCaretCharacterOffsetWithin(editor)
+
+    editor.querySelectorAll('font, b').forEach(el => {
+      const textNode = document.createTextNode(el.textContent || '')
+      el.replaceWith(textNode)
+    })
+
+    setCaretPosition(editor, preCaretOffset)
+  }
+
+  function getCaretCharacterOffsetWithin(element: HTMLElement) {
+    const selection = window.getSelection()
+    let caretOffset = 0
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0)
+      const preCaretRange = range.cloneRange()
+      preCaretRange.selectNodeContents(element)
+      preCaretRange.setEnd(range.endContainer, range.endOffset)
+      caretOffset = preCaretRange.toString().length
+    }
+    return caretOffset
+  }
+
+  function setCaretPosition(element: HTMLElement, chars: number) {
+    const nodeStack: ChildNode[] = Array.from(element.childNodes)
+    let node: ChildNode | undefined
+    let charCount = 0
+
+    for (node of nodeStack) {
+      const nodeLength = node.textContent?.length ?? 0
+      if (charCount + nodeLength >= chars) {
+        const range = document.createRange()
+        const sel = window.getSelection()
+        range.setStart(node, chars - charCount)
+        range.collapse(true)
+        sel?.removeAllRanges()
+        sel?.addRange(range)
+        break
+      }
+      charCount += nodeLength
+    }
+  }
+
+
+
 
   return (
     <div className='relative w-[60%]'>
