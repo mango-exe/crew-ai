@@ -47,6 +47,12 @@ export const selectConversation: StateCreator<ConversationStore, [], [], { selec
   }
 })
 
+export const setConversationAlias: StateCreator<ConversationStore, [], [], { setConversationAlias: (conversationAlias: string) => void }> = (set, get) => ({
+  setConversationAlias: async (conversationAlias) => {
+    set({ conversationAlias: conversationAlias })
+  }
+})
+
 export const addPopulatedChatToConversation: StateCreator<ConversationStore, [], [], { addPopulatedChatToConversation: (chat: PopulatedChat) => void }> = (set, get) => ({
   addPopulatedChatToConversation: (chat: PopulatedChat) => {
     set({ chats: [...get().chats, chat]  })

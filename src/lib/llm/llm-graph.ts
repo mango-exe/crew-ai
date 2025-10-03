@@ -68,7 +68,6 @@ export class LLMGraph {
           new HumanMessage(summaryMessage)
         ]
 
-        console.warn(model)
         const response = await model.invoke({ messages })
 
         const trimmedHistory = state.chat_history.slice(-2)

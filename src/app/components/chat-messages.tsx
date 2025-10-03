@@ -29,12 +29,14 @@ export default function ChatMessages () {
 
   const { message } = useWebSocket(userEmail)
 
-  const { chats, getConversation, addAiChatToConversation, getConversations, isExistingConversation, removeMessageAnimation } = useConversationStore(state => state)
+  const { chats, getConversation, addAiChatToConversation, getConversations, isExistingConversation, removeMessageAnimation, setConversationAlias } = useConversationStore(state => state)
 
 
   useEffect(() => {
     if (urlConversationAlias && (isExistingConversation || isExistingConversation === null)) {
       getConversation(urlConversationAlias as string)
+    } else if (urlConversationAlias) {
+      setConversationAlias(urlConversationAlias)
     }
   }, [urlConversationAlias])
 
@@ -61,7 +63,6 @@ export default function ChatMessages () {
     let isUserMessage = false
     let isAIMessage = false
 
-    // Type guard for user message
     if (message.fromUser && message.fromUser.email !== null) {
       isUserMessage = true
     } else if (message.fromModel) {

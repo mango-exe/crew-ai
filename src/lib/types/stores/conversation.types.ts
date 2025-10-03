@@ -24,6 +24,7 @@ export interface ConversationActions {
   addUserChatToConversation: (chat: NewChat) => void,
   newConversation: () => void,
   removeMessageAnimation: () => void
+  setConversationAlias: (conversationAlias: string) => void
 }
 
 export type ConversationStore = ConversationState & ConversationActions

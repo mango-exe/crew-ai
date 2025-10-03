@@ -8,7 +8,7 @@ import { NewChat } from '@/lib/types/schema/chat.types'
 import { useWebSocket } from '@/hooks/useWebSocket'
 import { useSession } from 'next-auth/react'
 import { useLLMStore } from '@/lib/stores/llms-store'
-
+import { useParams } from 'next/navigation'
 import { Spinner } from '@/app/components/ui/shadcn-io/spinner'
 
 import { Avatar, AvatarImage } from "@/app/components/ui/avatar"
@@ -20,6 +20,7 @@ export default function ChatInput() {
   const { llmsPreferences } = useLLMStore(state => state)
   const { conversationAlias, addUserChatToConversation, fetching } = useConversationStore(state => state)
 
+  const params = useParams<{ conversationAlias: string }>()
   const editorRef = useRef<HTMLDivElement>(null)
   const [llmMetions, setLLMMentions] = useState<{ llmId: number, llmModelId: number, llmName: string, llmModelName: string }[]>([])
   const [isMentionDetected, setIsMentionDetected] = useState(false)
@@ -28,6 +29,8 @@ export default function ChatInput() {
   const [selectedMention, setSelectedMention] = useState<{
     llmId: number, llmModelId: number, llmName: string, llmModelName: string
   } | null>(null)
+
+  const urlConversationAlias = params.conversationAlias
 
   useEffect(() => {
     if (!llmsPreferences) return
@@ -134,13 +137,12 @@ export default function ChatInput() {
       timestamp: new Date()
     }
 
-
     if (!conversationAlias) {
       addUserChatToConversation(chat)
       sendMessage({ chat }, 'NEW_CONVERSATION')
     } else {
       addUserChatToConversation(chat)
-      sendMessage({ chat, conversationAlias }, 'NEW_CHAT_IN_CONVERSATION')
+      sendMessage({ chat, conversationAlias: conversationAlias || urlConversationAlias }, 'NEW_CHAT_IN_CONVERSATION')
     }
 
     editor.innerHTML = ''

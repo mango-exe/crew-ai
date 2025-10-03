@@ -41,7 +41,6 @@ class LLMChatCompletion {
 
     if (!this.preloadedConversations.has(conversationAlias)) {
       const conversation = await conversationRepository.getUserPopulatedConversation(userId, conversationAlias)
-      console.warn(JSON.stringify(conversation, null, 2))
 
       if (conversation) {
         const  existingMessages: BaseMessage[] = conversation.chats.map(chat => {
@@ -51,7 +50,6 @@ class LLMChatCompletion {
 
           return message
         })
-        console.warn(existingMessages)
 
         if (existingMessages.length > 0) {
           await this.llmGraph.app.updateState(
